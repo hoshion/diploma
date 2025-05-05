@@ -34,8 +34,8 @@
         }
         .legend {
             position: fixed;
-            right: 20px;
-            top: 20px;
+            left: 20px;
+            bottom: 20px;
             background: rgba(255, 255, 255, 0.95);
             padding: 15px;
             border-radius: 10px;
@@ -48,6 +48,16 @@
             display: flex;
             align-items: center;
             margin-bottom: 5px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .legend-item:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        .legend-item.disabled {
+            opacity: 0.5;
         }
         .legend-color {
             width: 20px;
@@ -110,6 +120,39 @@
             margin-bottom: 5px;
             color: #333;
         }
+        .legend-sentiment {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 10000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .legend-sentiment-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .legend-sentiment-item:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        .legend-sentiment-item.disabled {
+            opacity: 0.5;
+        }
+        .legend-sentiment-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -144,6 +187,7 @@
         </div>
     </div>
     <div id="legend" class="legend"></div>
+    <div id="legend-sentiment" class="legend-sentiment"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
@@ -281,18 +325,88 @@
             }
         }
 
-        // Function to create legend
+        // Unified state for filters
+        let visibleCategories = null; // null means all enabled initially
+        let visibleSentiments = ['NEGATIVE', 'NEUTRAL', 'POSITIVE'];
+
+        // Update bar visibility based on both filters
+        function updateBarVisibilityUnified() {
+            const disabledCategories = new Set();
+            document.querySelectorAll('.legend-item.disabled').forEach(item => {
+                disabledCategories.add(item.dataset.category);
+            });
+            const disabledSentiments = new Set();
+            document.querySelectorAll('.legend-sentiment-item.disabled').forEach(item => {
+                disabledSentiments.add(item.dataset.sentiment);
+            });
+            const sentiments = ['NEGATIVE', 'NEUTRAL', 'POSITIVE'];
+            // Group bars by (week, sentiment)
+            const barsByWeekSentiment = {};
+            scene.children.forEach(child => {
+                if (child instanceof THREE.Mesh && child.userData && child.userData.category && child.userData.sentimentIndex !== undefined && child.userData.weekIndex !== undefined) {
+                    const key = `${child.userData.weekIndex}_${child.userData.sentimentIndex}`;
+                    if (!barsByWeekSentiment[key]) barsByWeekSentiment[key] = [];
+                    barsByWeekSentiment[key].push(child);
+                }
+            });
+            // For each group, update visibility and reposition
+            const cellWidth = 2.0;
+            const weekSpacing = 2.5;
+            const sentimentSpacing = 0.3;
+            const microGap = 0.05;
+            Object.values(barsByWeekSentiment).forEach(bars => {
+                if (bars.length === 0) return;
+                const weekIndex = bars[0].userData.weekIndex;
+                const sentimentIndex = bars[0].userData.sentimentIndex;
+                // Only visible bars
+                let visibleBars = bars.filter(bar => {
+                    const sentiment = sentiments[bar.userData.sentimentIndex];
+                    const category = bar.userData.category;
+                    return !disabledCategories.has(category) && !disabledSentiments.has(sentiment);
+                });
+                // Sort by cluster index for consistent order
+                visibleBars.sort((a, b) => a.userData.clusterIndex - b.userData.clusterIndex);
+                // Calculate total width
+                let totalWidth = 0;
+                visibleBars.forEach(bar => {
+                    totalWidth += bar.geometry.parameters.width;
+                });
+                totalWidth += (visibleBars.length - 1) * microGap;
+                let currentX = -totalWidth / 2;
+                visibleBars.forEach(bar => {
+                    bar.visible = true;
+                    bar.position.x = weekIndex * weekSpacing - cellWidth / 2 + currentX + bar.geometry.parameters.width / 2;
+                    bar.position.z = sentimentIndex * sentimentSpacing;
+                    currentX += bar.geometry.parameters.width + microGap;
+                });
+                // Hide disabled bars
+                bars.forEach(bar => {
+                    const sentiment = sentiments[bar.userData.sentimentIndex];
+                    const category = bar.userData.category;
+                    if (disabledCategories.has(category) || disabledSentiments.has(sentiment)) {
+                        bar.visible = false;
+                    }
+                });
+            });
+        }
+
+        // Update legend click handlers to use unified state
         function createLegend(categories) {
             const legend = document.getElementById('legend');
-            legend.style.display = 'block'; // Ensure it's visible
+            legend.style.display = 'block';
             legend.innerHTML = '';
+            if (!visibleCategories) visibleCategories = [...categories];
             categories.forEach((category, index) => {
-                if (!category) return; // Skip empty/undefined cluster names
+                if (!category) return;
                 const item = document.createElement('div');
                 item.className = 'legend-item';
+                item.dataset.category = category;
+                item.dataset.index = index;
+                if (!visibleCategories.includes(category)) {
+                    item.classList.add('disabled');
+                }
                 const colorBox = document.createElement('div');
                 colorBox.className = 'legend-color';
-                // Fallback to a default color if out of palette
                 const colorValue = categoryColors[index % categoryColors.length] || 0xcccccc;
                 colorBox.style.backgroundColor = `#${colorValue.toString(16).padStart(6, '0')}`;
                 const label = document.createElement('span');
@@ -300,23 +414,48 @@
                 item.appendChild(colorBox);
                 item.appendChild(label);
                 legend.appendChild(item);
+                item.addEventListener('click', () => {
+                    if (visibleCategories.includes(category)) {
+                        visibleCategories = visibleCategories.filter(c => c !== category);
+                        item.classList.add('disabled');
+                    } else {
+                        visibleCategories.push(category);
+                        item.classList.remove('disabled');
+                    }
+                    updateBarVisibilityUnified();
+                });
             });
         }
 
-        // Function to clear scene
-        function clearScene() {
-            // Keep only essential elements
-            const essentialElements = [ambientLight, directionalLight, axesHelper, gridHelper];
-            const elementsToRemove = [];
-            
-            scene.children.forEach(child => {
-                if (!essentialElements.includes(child)) {
-                    elementsToRemove.push(child);
+        function createSentimentLegend(sentiments) {
+            const legend = document.getElementById('legend-sentiment');
+            legend.style.display = 'block';
+            legend.innerHTML = '';
+            sentiments.forEach((sentiment, index) => {
+                const item = document.createElement('div');
+                item.className = 'legend-sentiment-item';
+                item.dataset.sentiment = sentiment;
+                if (!visibleSentiments.includes(sentiment)) {
+                    item.classList.add('disabled');
                 }
-            });
-            
-            elementsToRemove.forEach(child => {
-                scene.remove(child);
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-sentiment-color';
+                colorBox.style.backgroundColor = `#${sentimentColors[sentiment].toString(16).padStart(6, '0')}`;
+                const label = document.createElement('span');
+                label.textContent = sentiment.charAt(0) + sentiment.slice(1).toLowerCase();
+                item.appendChild(colorBox);
+                item.appendChild(label);
+                legend.appendChild(item);
+                item.addEventListener('click', () => {
+                    if (visibleSentiments.includes(sentiment)) {
+                        visibleSentiments = visibleSentiments.filter(s => s !== sentiment);
+                        item.classList.add('disabled');
+                    } else {
+                        visibleSentiments.push(sentiment);
+                        item.classList.remove('disabled');
+                    }
+                    updateBarVisibilityUnified();
+                });
             });
         }
 
@@ -402,10 +541,10 @@
                     return;
                 }
 
-                // Always show legend (not affected by scene clearing)
+                // After bars are created, call both legends and updateBarVisibilityUnified
                 createLegend(clustersArray);
-                clearScene();
-                createLegend(clustersArray);
+                createSentimentLegend(['NEGATIVE', 'NEUTRAL', 'POSITIVE']);
+                updateBarVisibilityUnified();
                 
                 // Bar layout parameters
                 const cellWidth = 2.0;
@@ -435,9 +574,15 @@
                           z,
                           barWidth,
                           count,
-                          barWidth, // use same as width for square bars
+                          barWidth,
                           categoryColors[clusterIndex]
                         );
+                        // Store category and position info for later use
+                        bar.userData = {
+                            category: cluster,
+                            weekIndex: weekIndex,
+                            sentimentIndex: sentimentIndex
+                        };
                         scene.add(bar);
                         maxHeight = Math.max(maxHeight, count);
                         // Store top position for polyline
@@ -507,7 +652,6 @@
             const endDate = document.getElementById('endDate').value;
             
             if (startDate && endDate) {
-                clearScene();
                 fetchAndVisualizeData(startDate, endDate);
             } else {
                 alert('Please select both start and end dates');
