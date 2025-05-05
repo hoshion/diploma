@@ -26,6 +26,6 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dimplomadb:latest
+          tags: justhoshion/dimplomadb:latest
           push: true
       
