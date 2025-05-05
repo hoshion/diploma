@@ -57,13 +57,37 @@
         }
         .date-controls {
             position: fixed;
-            left: 20px;
             top: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            right: 20px;
+            background: white;
             padding: 15px;
             border-radius: 10px;
-            z-index: 3;
-            pointer-events: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            width: 200px;
+        }
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            border: none;
+        }
+        .settings-button:hover {
+            background: #f8f9fa;
+        }
+        .settings-icon {
+            font-size: 20px;
+            color: #333;
         }
         .date-controls input {
             margin: 5px 0;
@@ -89,6 +113,9 @@
     </style>
 </head>
 <body>
+    <button class="settings-button" onclick="window.location.href='/settings'">
+        <span class="settings-icon">⚙️</span>
+    </button>
     <div id="canvas-container"></div>
     <div class="date-controls">
         <h5>Select Date Range</h5>
@@ -260,11 +287,14 @@
             legend.style.display = 'block'; // Ensure it's visible
             legend.innerHTML = '';
             categories.forEach((category, index) => {
+                if (!category) return; // Skip empty/undefined cluster names
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 const colorBox = document.createElement('div');
                 colorBox.className = 'legend-color';
-                colorBox.style.backgroundColor = `#${categoryColors[index].toString(16).padStart(6, '0')}`;
+                // Fallback to a default color if out of palette
+                const colorValue = categoryColors[index % categoryColors.length] || 0xcccccc;
+                colorBox.style.backgroundColor = `#${colorValue.toString(16).padStart(6, '0')}`;
                 const label = document.createElement('span');
                 label.textContent = category;
                 item.appendChild(colorBox);
@@ -311,7 +341,7 @@
                 // Group data by week and sentiment
                 const weeklyData = {};
                 data.forEach(news => {
-                    if (!news.published_at || !news.category || !news.category.name) {
+                    if (!news.published_at || !news.translations) {
                         console.warn('Invalid news item:', news);
                         return;
                     }
@@ -319,73 +349,84 @@
                     const date = new Date(news.published_at);
                     const week = `${date.getFullYear()}-W${Math.floor(date.getDate() / 7) + 1}`;
                     
-                    if (!weeklyData[week]) {
-                        weeklyData[week] = {
-                            POSITIVE: {},
-                            NEUTRAL: {},
-                            NEGATIVE: {}
-                        };
-                    }
-                    
-                    const category = news.category.name;
-                    
-                    // Initialize category counts for each sentiment if not exists
-                    ['POSITIVE', 'NEUTRAL', 'NEGATIVE'].forEach(sentiment => {
-                        if (!weeklyData[week][sentiment][category]) {
-                            weeklyData[week][sentiment][category] = 0;
-                        }
-                    });
-                    
-                    // Get sentiment for this news item from all translations
-                    if (news.translations && news.translations.length > 0) {
-                        news.translations.forEach(translation => {
-                            if (translation.sentiments && translation.sentiments.length > 0) {
-                                translation.sentiments.forEach(sentiment => {
-                                    if (sentiment.value in weeklyData[week]) {
-                                        weeklyData[week][sentiment.value][category]++;
+                    // Get clusters from translations
+                    news.translations.forEach(translation => {
+                        if (translation.clusters && translation.clusters.length > 0) {
+                            translation.clusters.forEach(cluster => {
+                                const clusterName = cluster.name;
+                                
+                                if (!weeklyData[week]) {
+                                    weeklyData[week] = {
+                                        POSITIVE: {},
+                                        NEUTRAL: {},
+                                        NEGATIVE: {}
+                                    };
+                                }
+                                
+                                // Initialize cluster counts for each sentiment if not exists
+                                ['POSITIVE', 'NEUTRAL', 'NEGATIVE'].forEach(sentiment => {
+                                    if (!weeklyData[week][sentiment][clusterName]) {
+                                        weeklyData[week][sentiment][clusterName] = 0;
                                     }
                                 });
-                            }
-                        });
-                    }
+                                
+                                // Get sentiment for this cluster
+                                if (translation.sentiments && translation.sentiments.length > 0) {
+                                    translation.sentiments.forEach(sentiment => {
+                                        if (sentiment.value in weeklyData[week]) {
+                                            weeklyData[week][sentiment.value][clusterName]++;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
                 });
 
                 console.log('Processed weekly data:', weeklyData);
 
                 const weeks = Object.keys(weeklyData).sort();
-                const categories = [...new Set(data.map(news => news.category.name))];
+                const clusters = new Set();
+                Object.values(weeklyData).forEach(weekData => {
+                    Object.values(weekData).forEach(sentimentData => {
+                        Object.keys(sentimentData).forEach(cluster => {
+                            clusters.add(cluster);
+                        });
+                    });
+                });
+                const clustersArray = Array.from(clusters);
                 const sentiments = ['NEGATIVE', 'NEUTRAL', 'POSITIVE'];
                 
-                if (weeks.length === 0 || categories.length === 0) {
-                    console.warn('No valid weeks or categories found');
+                if (weeks.length === 0 || clustersArray.length === 0) {
+                    console.warn('No valid weeks or clusters found');
                     return;
                 }
 
                 // Always show legend (not affected by scene clearing)
-                createLegend(categories);
+                createLegend(clustersArray);
                 clearScene();
-                createLegend(categories);
+                createLegend(clustersArray);
                 
                 // Bar layout parameters
                 const cellWidth = 2.0;
                 const weekSpacing = 2.5;
-                const sentimentSpacing = 1.2;
-                const barWidth = cellWidth / categories.length * 0.8;
-                const categorySpacing = cellWidth / categories.length;
+                const sentimentSpacing = 0.3;
+                const barWidth = cellWidth / clustersArray.length * 0.8;
+                const clusterSpacing = cellWidth / clustersArray.length;
                 let maxHeight = 0;
 
                 // Store bar tops for polylines
                 const barTops = {};
-                // Store sentiment bar tops for each (week, category)
+                // Store sentiment bar tops for each (week, cluster)
                 const sentimentBarTops = {};
                 weeks.forEach((week, weekIndex) => {
                   sentiments.forEach((sentiment, sentimentIndex) => {
                     barTops[`${weekIndex}_${sentimentIndex}`] = [];
-                    categories.forEach((category, categoryIndex) => {
-                      const count = (weeklyData[week][sentiment][category] || 0);
+                    clustersArray.forEach((cluster, clusterIndex) => {
+                      const count = (weeklyData[week][sentiment][cluster] || 0);
                       if (count > 0) {
                         // Center the group of bars for each (week, sentiment)
-                        const x = weekIndex * weekSpacing - cellWidth / 2 + categoryIndex * categorySpacing + categorySpacing / 2;
+                        const x = weekIndex * weekSpacing - cellWidth / 2 + clusterIndex * clusterSpacing + clusterSpacing / 2;
                         const y = count;
                         const z = sentimentIndex * sentimentSpacing;
                         const bar = createBar(
@@ -395,37 +436,37 @@
                           barWidth,
                           count,
                           barWidth, // use same as width for square bars
-                          categoryColors[categoryIndex]
+                          categoryColors[clusterIndex]
                         );
                         scene.add(bar);
                         maxHeight = Math.max(maxHeight, count);
                         // Store top position for polyline
                         barTops[`${weekIndex}_${sentimentIndex}`].push(new THREE.Vector3(x, y, z));
-                        // Store sentiment bar top for (week, category)
-                        if (!sentimentBarTops[`${weekIndex}_${categoryIndex}`]) {
-                          sentimentBarTops[`${weekIndex}_${categoryIndex}`] = [];
+                        // Store sentiment bar top for (week, cluster)
+                        if (!sentimentBarTops[`${weekIndex}_${clusterIndex}`]) {
+                          sentimentBarTops[`${weekIndex}_${clusterIndex}`] = [];
                         }
-                        sentimentBarTops[`${weekIndex}_${categoryIndex}`][sentimentIndex] = new THREE.Vector3(x, y, z);
+                        sentimentBarTops[`${weekIndex}_${clusterIndex}`][sentimentIndex] = new THREE.Vector3(x, y, z);
                       }
                     });
                   });
                 });
 
-                // Draw lines between sentiments for the same (week, category)
-                Object.keys(sentimentBarTops).forEach(key => {
-                  const points = sentimentBarTops[key];
-                  // Only draw if we have at least two bars (ideally three: NEGATIVE, NEUTRAL, POSITIVE)
-                  const filteredPoints = points.filter(p => p);
-                  if (filteredPoints.length > 1) {
-                    const geometry = new THREE.BufferGeometry().setFromPoints(filteredPoints);
-                    const material = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 2 });
-                    const line = new THREE.Line(geometry, material);
-                    scene.add(line);
-                  }
-                });
+                // Draw lines between sentiments for the same (week, cluster)
+                // Object.keys(sentimentBarTops).forEach(key => {
+                //   const points = sentimentBarTops[key];
+                //   // Only draw if we have at least two bars (ideally three: NEGATIVE, NEUTRAL, POSITIVE)
+                //   const filteredPoints = points.filter(p => p);
+                //   if (filteredPoints.length > 1) {
+                //     const geometry = new THREE.BufferGeometry().setFromPoints(filteredPoints);
+                //     const material = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 2 });
+                //     const line = new THREE.Line(geometry, material);
+                //     scene.add(line);
+                //   }
+                // });
 
                 // Create axis labels (sentiment labels closer)
-                createAxisLabels(weeks, categories, ['Negative', 'Neutral', 'Positive'], sentimentSpacing);
+                createAxisLabels(weeks, clustersArray, ['Negative', 'Neutral', 'Positive'], sentimentSpacing);
 
                 // Create Y-axis with ticks and labels
                 createYAxis(Math.max(5, maxHeight * 1.1), 5);
