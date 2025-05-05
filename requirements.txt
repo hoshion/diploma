@@ -13,3 +13,4 @@ seaborn~=0.13.2
 numpy~=2.2.5
 ollama~=0.4.8
 djangorestframework~=3.16.0
+django_injector~=0.3.1
