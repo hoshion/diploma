@@ -1,33 +1,30 @@
-version: '3.9'
+version '3.9'
 
 services:
-  db:
-    image: postgres:17
-    restart: always
-    environment:
-      POSTGRES_DB: dimplomadb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+  diploma-postgres:
+    image: postgres:latest
+    container_name: diploma-postgres
+    restart: unless-stopped
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /home/deployment/diploma/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - '5438:5432'
 
-  web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./src:/code
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
+  diploma-app:
+    image: justhoshion/diploma
+    container_name: diploma-app
+    restart: unless-stopped
     environment:
-      - DB_NAME=dimplomadb
+      - DB_NAME=postgres
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_HOST=db
+      - DB_HOST=diploma-postgres
       - DB_PORT=5432
-
-volumes:
-  postgres_data:
+      - DJANGO_SETTINGS_MODULE=src.app.settings
+    ports:
+      - '8888:8000'
