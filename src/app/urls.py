@@ -25,5 +25,6 @@ router.register('news', NewsController, basename='news')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
+    path('', include('frontend.urls')),
 ]

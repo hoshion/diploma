@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Sentiment Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            color: #333;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .legend {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 10000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        .date-controls {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 3;
+            pointer-events: auto;
+        }
+        .date-controls input {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            pointer-events: auto;
+        }
+        .date-controls button {
+            margin-top: 10px;
+            width: 100%;
+            pointer-events: auto;
+        }
+        .date-controls h5 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .date-controls label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div class="date-controls">
+        <h5>Select Date Range</h5>
+        <div class="mb-2">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" class="form-control">
+        </div>
+        <div class="mb-2">
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" class="form-control">
+        </div>
+        <button id="updateData" class="btn btn-primary">Update Visualization</button>
+    </div>
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card mt-5">
+                        <div class="card-body">
+                            <h1 class="text-center mb-4">News Sentiment Analysis</h1>
+                            <p class="text-center">Interactive 3D visualization of news sentiment data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="legend" class="legend"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // Step 1: Initialize Three.js scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf8f9fa); // Set background color
+
+        // Step 2: Set up camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(20, 20, 20); // Position camera
+        camera.lookAt(0, 0, 0);
+
+        // Step 3: Set up renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Step 4: Add controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // Step 5: Add lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+
+        // Step 6: Add grid and axes helpers
+        const gridHelper = new THREE.GridHelper(20, 20);
+        scene.add(gridHelper);
+        const axesHelper = new THREE.AxesHelper(10);
+        scene.add(axesHelper);
+
+        // Colors for different categories
+        const categoryColors = [
+            0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff,
+            0x00ffff, 0xff8000, 0x8000ff, 0x00ff80, 0xff0080,
+            0x80ff00, 0x0080ff, 0xff8080, 0x80ff80, 0x8080ff,
+            0xffff80, 0xff80ff
+        ];
+
+        // Sentiment colors
+        const sentimentColors = {
+            'POSITIVE': 0x00ff00,
+            'NEUTRAL': 0x808080,
+            'NEGATIVE': 0xff0000
+        };
+
+        // Function to create a bar
+        function createBar(x, y, z, width, height, depth, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: color,
+                shininess: 100,
+                specular: 0x111111,
+                side: THREE.DoubleSide
+            });
+            const bar = new THREE.Mesh(geometry, material);
+            bar.position.set(x, y, z);
+            bar.castShadow = true;
+            bar.receiveShadow = true;
+            return bar;
+        }
+
+        // Function to create text label
+        function createTextLabel(text, position, color = 0x000000, size = 24) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 128;
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.font = `${size}px Arial`;
+            context.fillStyle = 'black';
+            context.textAlign = 'center';
+            context.fillText(text, canvas.width/2, canvas.height/2);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true
+            });
+            const geometry = new THREE.PlaneGeometry(2, 1);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.copy(position);
+            return mesh;
+        }
+
+        // Function to create axis labels
+        function createAxisLabels(weeks, categories, sentiments, sentimentSpacing) {
+            // Week labels (X-axis)
+            weeks.forEach((week, index) => {
+                const label = createTextLabel(week, new THREE.Vector3(index * 2.5, -1, -2));
+                scene.add(label);
+            });
+
+            // Sentiment labels (Z-axis, closer to bars)
+            sentiments.forEach((label, index) => {
+                const textLabel = createTextLabel(label, new THREE.Vector3(-2, 0, index * sentimentSpacing));
+                scene.add(textLabel);
+            });
+
+            // Amount label (Y-axis)
+            const amountLabel = createTextLabel('Count', new THREE.Vector3(-2, 8, -2), 0x000000, 20);
+            scene.add(amountLabel);
+        }
+
+        // Function to create Y-axis with ticks and labels
+        function createYAxis(maxHeight, tickCount = 5) {
+            const axisMaterial = new THREE.LineBasicMaterial({ color: 0x222222 });
+            const axisPoints = [
+                new THREE.Vector3(-2, 0, -2),
+                new THREE.Vector3(-2, maxHeight, -2)
+            ];
+            const axisGeometry = new THREE.BufferGeometry().setFromPoints(axisPoints);
+            const axisLine = new THREE.Line(axisGeometry, axisMaterial);
+            scene.add(axisLine);
+            // Add ticks and labels
+            for (let i = 0; i <= tickCount; i++) {
+                const y = (maxHeight / tickCount) * i;
+                // Tick
+                const tickPoints = [
+                    new THREE.Vector3(-2.2, y, -2),
+                    new THREE.Vector3(-1.8, y, -2)
+                ];
+                const tickGeometry = new THREE.BufferGeometry().setFromPoints(tickPoints);
+                const tickLine = new THREE.Line(tickGeometry, axisMaterial);
+                scene.add(tickLine);
+                // Label
+                const tickLabel = createTextLabel(Math.round(y).toString(), new THREE.Vector3(-2.7, y, -2), 0x000000, 18);
+                scene.add(tickLabel);
+            }
+        }
+
+        // Function to create legend
+        function createLegend(categories) {
+            const legend = document.getElementById('legend');
+            legend.style.display = 'block'; // Ensure it's visible
+            legend.innerHTML = '';
+            categories.forEach((category, index) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = `#${categoryColors[index].toString(16).padStart(6, '0')}`;
+                const label = document.createElement('span');
+                label.textContent = category;
+                item.appendChild(colorBox);
+                item.appendChild(label);
+                legend.appendChild(item);
+            });
+        }
+
+        // Function to clear scene
+        function clearScene() {
+            // Keep only essential elements
+            const essentialElements = [ambientLight, directionalLight, axesHelper, gridHelper];
+            const elementsToRemove = [];
+            
+            scene.children.forEach(child => {
+                if (!essentialElements.includes(child)) {
+                    elementsToRemove.push(child);
+                }
+            });
+            
+            elementsToRemove.forEach(child => {
+                scene.remove(child);
+            });
+        }
+
+        // Fetch data from API and create visualization
+        async function fetchAndVisualizeData(startDate = null, endDate = null) {
+            try {
+                let url = '/api/news/';
+                if (startDate && endDate) {
+                    url += `?start_date=${startDate}&end_date=${endDate}`;
+                }
+                
+                console.log('Fetching data from:', url);
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log('Received data:', data);
+                
+                if (!data || data.length === 0) {
+                    console.warn('No data received from API');
+                    return;
+                }
+
+                // Group data by week and sentiment
+                const weeklyData = {};
+                data.forEach(news => {
+                    if (!news.published_at || !news.category || !news.category.name) {
+                        console.warn('Invalid news item:', news);
+                        return;
+                    }
+
+                    const date = new Date(news.published_at);
+                    const week = `${date.getFullYear()}-W${Math.floor(date.getDate() / 7) + 1}`;
+                    
+                    if (!weeklyData[week]) {
+                        weeklyData[week] = {
+                            POSITIVE: {},
+                            NEUTRAL: {},
+                            NEGATIVE: {}
+                        };
+                    }
+                    
+                    const category = news.category.name;
+                    
+                    // Initialize category counts for each sentiment if not exists
+                    ['POSITIVE', 'NEUTRAL', 'NEGATIVE'].forEach(sentiment => {
+                        if (!weeklyData[week][sentiment][category]) {
+                            weeklyData[week][sentiment][category] = 0;
+                        }
+                    });
+                    
+                    // Get sentiment for this news item from all translations
+                    if (news.translations && news.translations.length > 0) {
+                        news.translations.forEach(translation => {
+                            if (translation.sentiments && translation.sentiments.length > 0) {
+                                translation.sentiments.forEach(sentiment => {
+                                    if (sentiment.value in weeklyData[week]) {
+                                        weeklyData[week][sentiment.value][category]++;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                console.log('Processed weekly data:', weeklyData);
+
+                const weeks = Object.keys(weeklyData).sort();
+                const categories = [...new Set(data.map(news => news.category.name))];
+                const sentiments = ['NEGATIVE', 'NEUTRAL', 'POSITIVE'];
+                
+                if (weeks.length === 0 || categories.length === 0) {
+                    console.warn('No valid weeks or categories found');
+                    return;
+                }
+
+                // Always show legend (not affected by scene clearing)
+                createLegend(categories);
+                clearScene();
+                createLegend(categories);
+                
+                // Bar layout parameters
+                const cellWidth = 2.0;
+                const weekSpacing = 2.5;
+                const sentimentSpacing = 1.2;
+                const barWidth = cellWidth / categories.length * 0.8;
+                const categorySpacing = cellWidth / categories.length;
+                let maxHeight = 0;
+
+                // Store bar tops for polylines
+                const barTops = {};
+                // Store sentiment bar tops for each (week, category)
+                const sentimentBarTops = {};
+                weeks.forEach((week, weekIndex) => {
+                  sentiments.forEach((sentiment, sentimentIndex) => {
+                    barTops[`${weekIndex}_${sentimentIndex}`] = [];
+                    categories.forEach((category, categoryIndex) => {
+                      const count = (weeklyData[week][sentiment][category] || 0);
+                      if (count > 0) {
+                        // Center the group of bars for each (week, sentiment)
+                        const x = weekIndex * weekSpacing - cellWidth / 2 + categoryIndex * categorySpacing + categorySpacing / 2;
+                        const y = count;
+                        const z = sentimentIndex * sentimentSpacing;
+                        const bar = createBar(
+                          x,
+                          y / 2,
+                          z,
+                          barWidth,
+                          count,
+                          barWidth, // use same as width for square bars
+                          categoryColors[categoryIndex]
+                        );
+                        scene.add(bar);
+                        maxHeight = Math.max(maxHeight, count);
+                        // Store top position for polyline
+                        barTops[`${weekIndex}_${sentimentIndex}`].push(new THREE.Vector3(x, y, z));
+                        // Store sentiment bar top for (week, category)
+                        if (!sentimentBarTops[`${weekIndex}_${categoryIndex}`]) {
+                          sentimentBarTops[`${weekIndex}_${categoryIndex}`] = [];
+                        }
+                        sentimentBarTops[`${weekIndex}_${categoryIndex}`][sentimentIndex] = new THREE.Vector3(x, y, z);
+                      }
+                    });
+                  });
+                });
+
+                // Draw lines between sentiments for the same (week, category)
+                Object.keys(sentimentBarTops).forEach(key => {
+                  const points = sentimentBarTops[key];
+                  // Only draw if we have at least two bars (ideally three: NEGATIVE, NEUTRAL, POSITIVE)
+                  const filteredPoints = points.filter(p => p);
+                  if (filteredPoints.length > 1) {
+                    const geometry = new THREE.BufferGeometry().setFromPoints(filteredPoints);
+                    const material = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 2 });
+                    const line = new THREE.Line(geometry, material);
+                    scene.add(line);
+                  }
+                });
+
+                // Create axis labels (sentiment labels closer)
+                createAxisLabels(weeks, categories, ['Negative', 'Neutral', 'Positive'], sentimentSpacing);
+
+                // Create Y-axis with ticks and labels
+                createYAxis(Math.max(5, maxHeight * 1.1), 5);
+
+                // Position camera based on data
+                const numWeeks = weeks.length;
+                const numSentiments = sentiments.length;
+                if (isNaN(maxHeight) || isNaN(numWeeks) || isNaN(numSentiments)) {
+                    console.error('Invalid dimensions for camera positioning:', {
+                        maxHeight,
+                        numWeeks,
+                        numSentiments
+                    });
+                    return;
+                }
+
+                const baseDistance = 20;
+                const scaleFactor = 1.5;
+                const cameraDistance = Math.max(
+                    baseDistance,
+                    numWeeks * scaleFactor,
+                    numSentiments * scaleFactor,
+                    maxHeight * scaleFactor
+                );
+
+                camera.position.set(cameraDistance, cameraDistance, cameraDistance);
+                camera.lookAt(0, 0, 0);
+                
+                console.log('Visualization created with camera position:', camera.position);
+            } catch (error) {
+                console.error('Error in fetchAndVisualizeData:', error);
+            }
+        }
+
+        // Set up date controls
+        document.getElementById('updateData').addEventListener('click', () => {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (startDate && endDate) {
+                clearScene();
+                fetchAndVisualizeData(startDate, endDate);
+            } else {
+                alert('Please select both start and end dates');
+            }
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Update renderer setup to enable shadows
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // Update directional light to cast shadows
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.bias = -0.0001; // Reduce shadow acne
+        directionalLight.shadow.normalBias = 0.05; // Add normal bias for better shadows
+    </script>
+</body>
+</html> 

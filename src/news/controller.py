@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 
 from .service import NewsService
 from injector import inject
+from .serializers import NewsDetailSerializer
 
 class NewsController(viewsets.ViewSet):
     @inject
@@ -14,7 +15,8 @@ class NewsController(viewsets.ViewSet):
         self.news_service = news_service
 
     def list(self, request: HttpRequest):
-        return JsonResponse(self.news_service.find_many(request.GET).data, safe=False)
+        serializer = self.news_service.find_many(request.GET)
+        return JsonResponse(serializer.data, safe=False)
 
     @action(detail=False, methods=['GET'])
     def parse(self, request: HttpRequest):

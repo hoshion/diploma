@@ -1,9 +1,11 @@
 from injector import inject
+from datetime import datetime
+from django.db.models import Q
 
 from src.news.llms.ollama import OllamaModel
 from src.news.models import News
 from src.news.parsers.hromadske import HromadskeParser
-from src.news.serializers import NewsSerializer
+from src.news.serializers import NewsDetailSerializer
 from src.news.translators.translator import GoogleTranslator
 
 
@@ -12,8 +14,19 @@ class NewsService:
         return 'Hello world!'
 
     def find_many(self, params: dict[str, str]):
-        objects = News.objects.all()
-        return NewsSerializer(objects, many=True)
+        query = Q()
+        
+        # Add date range filtering if provided
+        if 'start_date' in params and 'end_date' in params:
+            try:
+                start_date = datetime.strptime(params['start_date'], '%Y-%m-%d')
+                end_date = datetime.strptime(params['end_date'], '%Y-%m-%d')
+                query &= Q(published_at__gte=start_date) & Q(published_at__lte=end_date)
+            except ValueError:
+                pass  # Handle invalid date format silently
+        
+        objects = News.objects.filter(query)
+        return NewsDetailSerializer(objects, many=True)
 
     def parse(self, params: dict[str, str]):
         if params["parser_type"] == 'Hromadske':
