@@ -26,6 +26,6 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          tags: justhoshion/diplomadb:latest
+          tags: justhoshion/diploma-app:latest
           push: true
       
