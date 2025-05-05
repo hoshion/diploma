@@ -32,9 +32,6 @@ class GoogleTranslator:
                 website__name=parser_type,
             )
 
-        if days is not None:
-            news_items = news_items.filter(published_at__day__in=days)
-
         for news in news_items:
             en_text = DeepGoogleTranslator(source='auto', target='en').translate(news.content[0:3000])
             newsDb = NewsTranslation.objects.filter(news=news, translator=self.translator)

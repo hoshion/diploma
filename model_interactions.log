@@ -3107,3 +3107,15 @@ INFO 2025-05-05 18:53:59,205 ollama Using prompt: Hi! I need you to classify Ukr
 
 The news is:
 
+INFO 2025-05-05 19:31:01,943 ollama Initialized OllamaModel with model: llama3.1:8b
+INFO 2025-05-05 19:31:01,944 ollama Starting clustering for Hromadske with Google translator
+INFO 2025-05-05 19:31:01,945 ollama Date range: 2025-03-01 00:00:00 to 2025-06-01 00:00:00
+INFO 2025-05-05 19:31:01,945 ollama Using prompt: Hi! I need you to classify Ukrainian news by news category. There are 17 categories: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather, Other. You need to evaluate the closest category from proposed to this news. As answer you need to write only the name of cateogory and NOTHING ELSE.
+
+The news is:
+INFO 2025-05-05 19:33:10,530 ollama Initialized OllamaModel with model: llama3.1:8b
+INFO 2025-05-05 19:33:10,531 ollama Starting clustering for Hromadske with Google translator
+INFO 2025-05-05 19:33:10,531 ollama Date range: 2025-01-01 00:00:00 to 2025-06-01 00:00:00
+INFO 2025-05-05 19:33:10,531 ollama Using prompt: Hi! I need you to classify Ukrainian news by news category. There are 17 categories: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather, Other. You need to evaluate the closest category from proposed to this news. As answer you need to write only the name of cateogory and NOTHING ELSE.
+
+The news is:
