@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistics - News Analysis{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Add any custom styles for statistics page here if needed */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Parser Statistics</h2>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="statisticsForm" class="row g-3">
+                <div class="col-md-3 mb-3">
+                    <label for="parser_name" class="form-label">Parser</label>
+                    <select class="form-select" id="parser_name" name="parser_name">
+                        <option value="">All Parsers</option>
+                        {% for website in websites %}
+                        <option value="{{ website.name }}">{{ website.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="startDate" name="start_date">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="endDate" name="end_date">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="statisticRange" class="form-label">Time Range</label>
+                    <select class="form-select" id="statisticRange" name="statistic_range">
+                        <option value="week">Weekly</option>
+                        <option value="fortnight">Fortnightly</option>
+                        <option value="month" selected>Monthly</option>
+                        <option value="year">Yearly</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="statisticsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('statisticsChart').getContext('2d');
+    let statisticsChart = null;
+
+    function updateChart(data) {
+        if (statisticsChart) {
+            statisticsChart.destroy();
+        }
+
+        const datasets = [
+            {
+                label: 'Parsed News',
+                data: data.map(item => item.total_parsed),
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            },
+            {
+                label: 'Translated News',
+                data: data.map(item => item.total_translated),
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            },
+            {
+                label: 'Sentimented News',
+                data: data.map(item => item.total_sentimented),
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            },
+            {
+                label: 'Clustered News',
+                data: data.map(item => item.total_clustered),
+                borderColor: 'rgb(255, 206, 86)',
+                tension: 0.1
+            }
+        ];
+
+        const statisticRange = document.getElementById('statisticRange').value;
+        let dateFormat;
+        switch(statisticRange) {
+            case 'week':
+            case 'fortnight':
+                dateFormat = { year: 'numeric', month: 'short', day: 'numeric' };
+                break;
+            case 'year':
+                dateFormat = { year: 'numeric' };
+                break;
+            default: // month
+                dateFormat = { year: 'numeric', month: 'long' };
+        }
+
+        statisticsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(item => new Date(item.period).toLocaleDateString('en-US', dateFormat)),
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    document.getElementById('statisticsForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const params = new URLSearchParams(formData);
+
+        fetch(`/api/statistics/?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                updateChart(data);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Initial load
+    fetch('/api/statistics/')
+        .then(response => response.json())
+        .then(data => {
+            updateChart(data);
+        })
+        .catch(error => console.error('Error:', error));
+});
+</script>
+{% endblock %} 

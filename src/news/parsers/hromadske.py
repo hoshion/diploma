@@ -58,7 +58,9 @@ class HromadskeParser:
     def get_news_body(self, soup: BeautifulSoup):
         title = soup.find('h1', class_='c-heading__title')
         title_text = '' if title is None else title.text + '. '
-        content = soup.find('div', class_='c-content') | soup.find('div', class_='s-content')
+        content = soup.find('div', class_='c-content') 
+        if content is None:
+            content = soup.find('div', class_='s-content')
         content_text = '' if content is None else ''.join(map(lambda x: x.text, soup.find('div', class_='s-content').find_all('p')))
         return title_text + content_text
 
@@ -70,10 +72,10 @@ class HromadskeParser:
     
     def get_news_date(self, soup: BeautifulSoup):
         date = soup.find('time', class_='c-post-header__date').get('datetime')
+        print(date)
         return datetime.fromisoformat(date)
 
     def parse(self):
-        result = {'year': [], 'month': [], 'day': [], 'section': [], 'text': []}
         years = self.get_hromadske_archive_years_links()
         for year in years:
             months = self.get_hromadske_archive_months_links(year)
@@ -92,12 +94,6 @@ class HromadskeParser:
                         section, text, date = self.get_hromadske_news_page(link)
                         if section is None:
                             continue
-                        result['year'].append(year)
-                        result['month'].append(month)
-                        result['day'].append(day)
-                        result['section'].append(section)
-                        result['text'].append(text)
-                        result['date'].append(date)
                         category, created = NewsCategory.objects.get_or_create(name=section)
                         if created:
                             category.save()
