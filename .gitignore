@@ -8,4 +8,4 @@
 **/dist/**
 **/build/**
 **/coverage/**
-src/app/__pycache__/urls.cpython-311.pyc
+celerybeat**
