@@ -2,3 +2,10 @@
 /.venv/
 /.ipynb_checkpoints/
 /.idea
+**/__pycache__/**.pyc
+**/venv/**
+**/node_modules/**
+**/dist/**
+**/build/**
+**/coverage/**
+src/app/__pycache__/urls.cpython-311.pyc

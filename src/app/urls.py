@@ -27,5 +27,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/statistics/', get_parser_statistics, name='parser-statistics'),
-    path('', include('frontend.urls')),
+    path('', include('src.frontend.urls')),
 ]
