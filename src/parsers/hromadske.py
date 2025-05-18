@@ -100,4 +100,4 @@ class HromadskeParser:
                         newsDb = NewsSerializer(News.objects.filter(published_at__exact=date), many=True).data
                         if len(newsDb) == 0:
                             news = News(content=text, category=category, website=self.newsWebsite, published_at=date)
-                            news.save()
+                            news.save() 

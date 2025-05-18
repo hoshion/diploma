@@ -1,10 +1,10 @@
 from celery import shared_task
 from datetime import datetime
-from src.news.parsers.hromadske import HromadskeParser
-from src.news.translators.translator import GoogleTranslator
-from src.news.llms.ollama import OllamaModel
+from src.parsers.hromadske import HromadskeParser
+from src.translators.translator import GoogleTranslator
+from src.llms.ollama import OllamaModel
 from src.news.models import News
-from src.news.serializers import NewsSerializer
+from src.news.serializers import NewsDetailSerializer
 
 @shared_task()
 def hromadske_news_pipeline():

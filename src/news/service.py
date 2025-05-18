@@ -4,11 +4,11 @@ from django.db.models import Q, Count
 from django.db.models.functions import TruncMonth, TruncWeek, TruncYear
 from typing import Optional
 
-from src.news.llms.ollama import OllamaModel
+from src.llms.ollama import OllamaModel
 from src.news.models import News, NewsTranslation, NewsSentiment, NewsCluster, NewsWebsite
-from src.news.parsers.hromadske import HromadskeParser
+from src.parsers.hromadske import HromadskeParser
 from src.news.serializers import NewsDetailSerializer
-from src.news.translators.translator import GoogleTranslator
+from src.translators.translator import GoogleTranslator
 
 
 class NewsService:

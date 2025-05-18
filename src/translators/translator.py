@@ -37,4 +37,4 @@ class GoogleTranslator:
             newsDb = NewsTranslation.objects.filter(news=news, translator=self.translator)
             if len(newsDb) == 0:
                 translation = NewsTranslation(content=en_text, news=news, translator=self.translator)
-                translation.save()
+                translation.save() 

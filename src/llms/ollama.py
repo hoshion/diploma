@@ -5,7 +5,7 @@ import ollama
 from src.news.models import LargeLanguageModel, NewsTranslation, NewsSentiment, Prompt, NewsCluster
 
 # Configure logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('src.llms.ollama')
 
 class OllamaModel:
     def __init__(self, model_name):
@@ -136,4 +136,4 @@ class OllamaModel:
                     prompt=promptDb,
                 )
                 cluster.save()
-                logger.info(f"Saved clustering for translation ID: {translation.id}")
+                logger.info(f"Saved clustering for translation ID: {translation.id}") 

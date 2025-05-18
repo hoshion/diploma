@@ -38,7 +38,10 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'src.news.apps.NewsConfig',
-    'src.frontend',
+    'src.frontend.apps.FrontendConfig',
+    'src.parsers.apps.ParsersConfig',
+    'src.translators.apps.TranslatorsConfig',
+    'src.llms.apps.LlmsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -162,7 +165,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'src.news.llms.ollama': {
+        'src.llms.ollama': {
             'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': True,
