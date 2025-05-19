@@ -7,6 +7,7 @@ from .service import NewsService, StatisticsService
 from injector import inject
 from .serializers import NewsDetailSerializer
 from datetime import datetime
+from src.parsers.service import ParsersService
 
 class NewsController(viewsets.ViewSet):
     @inject
@@ -51,9 +52,6 @@ class NewsController(viewsets.ViewSet):
 
     @action(detail=False, methods=['POST'])
     def delete(self, request: HttpRequest):
-        """
-        Delete news and related data within a date range
-        """
         try:
             start_date = request.data.get('start_date')
             end_date = request.data.get('end_date')
@@ -77,27 +75,24 @@ class NewsController(viewsets.ViewSet):
             })
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+    
+    @action(detail=False, methods=['GET'])
+    def statistics(self, request: HttpRequest):
+        website_id = request.GET.get('website_id')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        statistic_range = request.GET.get('statistic_range', 'month')
 
-@api_view(['GET'])
-def get_parser_statistics(request):
-    """
-    Get statistics for parsers
-    """
-    website_id = request.GET.get('website_id')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    statistic_range = request.GET.get('statistic_range', 'month')
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-    if start_date:
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    if end_date:
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        statistics = ParsersService.get_parser_statistics(
+            website_id=website_id,
+            start_date=start_date,
+            end_date=end_date,
+            statistic_range=statistic_range
+        )
 
-    statistics = StatisticsService.get_parser_statistics(
-        website_id=website_id,
-        start_date=start_date,
-        end_date=end_date,
-        statistic_range=statistic_range
-    )
-
-    return Response(statistics)
+        return Response(statistics)
