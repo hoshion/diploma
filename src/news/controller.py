@@ -1,11 +1,11 @@
-from django.http import HttpResponse, JsonResponse, HttpRequest
+from django.http import HttpRequest
 import json
 from rest_framework import viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from .service import NewsService, StatisticsService
+from .service import NewsService
+from src.parsers.service import ParsersService
 from injector import inject
-from .serializers import NewsDetailSerializer
 from datetime import datetime
 from src.parsers.service import ParsersService
 

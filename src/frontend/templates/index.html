@@ -192,9 +192,9 @@
     scene.add(directionalLight);
 
     // Step 6: Add grid and axes helpers
-    const gridHelper = new THREE.GridHelper(20, 20);
+    const gridHelper = new THREE.GridHelper(40, 40);
     scene.add(gridHelper);
-    const axesHelper = new THREE.AxesHelper(10);
+    const axesHelper = new THREE.AxesHelper(20);
     scene.add(axesHelper);
 
     // Colors for different categories
@@ -458,7 +458,7 @@
                 }
 
                 const date = new Date(news.published_at);
-                const week = `${date.getFullYear()}-W${Math.floor(date.getDate() / 7) + 1}`;
+                const week = `${date.getFullYear()}-W${getWeekNumber(date)}`;
                 
                 // Get clusters from translations
                 news.translations.forEach(translation => {
@@ -569,24 +569,11 @@
               });
             });
 
-            // Draw lines between sentiments for the same (week, cluster)
-            // Object.keys(sentimentBarTops).forEach(key => {
-            //   const points = sentimentBarTops[key];
-            //   // Only draw if we have at least two bars (ideally three: NEGATIVE, NEUTRAL, POSITIVE)
-            //   const filteredPoints = points.filter(p => p);
-            //   if (filteredPoints.length > 1) {
-            //     const geometry = new THREE.BufferGeometry().setFromPoints(filteredPoints);
-            //     const material = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 2 });
-            //     const line = new THREE.Line(geometry, material);
-            //     scene.add(line);
-            //   }
-            // });
-
             // Create axis labels (sentiment labels closer)
             createAxisLabels(weeks, clustersArray, ['Negative', 'Neutral', 'Positive'], sentimentSpacing);
 
             // Create Y-axis with ticks and labels
-            createYAxis(Math.max(5, maxHeight * 1.1), 5);
+            createYAxis(Math.max(5, maxHeight * 1.1), maxHeight / 5);
 
             // Position camera based on data
             const numWeeks = weeks.length;
@@ -616,6 +603,15 @@
         } catch (error) {
             console.error('Error in fetchAndVisualizeData:', error);
         }
+    }
+
+    function getWeekNumber(date) {
+        const tempDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        const dayNum = tempDate.getUTCDay() || 7;
+        tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
+        return weekNo;
     }
 
     // Set up date controls
