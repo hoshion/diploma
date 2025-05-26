@@ -192,7 +192,7 @@
     scene.add(directionalLight);
 
     // Step 6: Add grid and axes helpers
-    const gridHelper = new THREE.GridHelper(40, 40);
+    const gridHelper = new THREE.GridHelper(20, 20);
     scene.add(gridHelper);
     const axesHelper = new THREE.AxesHelper(20);
     scene.add(axesHelper);
@@ -232,8 +232,8 @@
     function createTextLabel(text, position, color = 0x000000, size = 24) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = 256;
-        canvas.height = 128;
+        canvas.width = 192;
+        canvas.height = 64;
         context.fillStyle = 'white';
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.font = `${size}px Arial`;
@@ -245,7 +245,7 @@
             map: texture,
             transparent: true
         });
-        const geometry = new THREE.PlaneGeometry(2, 1);
+        const geometry = new THREE.PlaneGeometry(1.5, 0.5);
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.copy(position);
         return mesh;
@@ -255,44 +255,40 @@
     function createAxisLabels(weeks, categories, sentiments, sentimentSpacing) {
         // Week labels (X-axis)
         weeks.forEach((week, index) => {
-            const label = createTextLabel(week, new THREE.Vector3(index * 2.5, -1, -2));
+            const label = createTextLabel(week, new THREE.Vector3(1.75 + index * 4.25, 0.2, 1.5));
             scene.add(label);
         });
 
         // Sentiment labels (Z-axis, closer to bars)
         sentiments.forEach((label, index) => {
-            const textLabel = createTextLabel(label, new THREE.Vector3(-2, 0, index * sentimentSpacing));
+            const textLabel = createTextLabel(label, new THREE.Vector3(-1, 0, index * sentimentSpacing));
             scene.add(textLabel);
         });
-
-        // Amount label (Y-axis)
-        const amountLabel = createTextLabel('Count', new THREE.Vector3(-2, 8, -2), 0x000000, 20);
-        scene.add(amountLabel);
     }
 
     // Function to create Y-axis with ticks and labels
     function createYAxis(maxHeight, tickCount = 5) {
         const axisMaterial = new THREE.LineBasicMaterial({ color: 0x222222 });
         const axisPoints = [
-            new THREE.Vector3(-2, 0, -2),
-            new THREE.Vector3(-2, maxHeight, -2)
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, maxHeight, 0)
         ];
         const axisGeometry = new THREE.BufferGeometry().setFromPoints(axisPoints);
         const axisLine = new THREE.Line(axisGeometry, axisMaterial);
         scene.add(axisLine);
         // Add ticks and labels
-        for (let i = 0; i <= tickCount; i++) {
+        for (let i = 1; i <= tickCount; i++) {
             const y = (maxHeight / tickCount) * i;
             // Tick
             const tickPoints = [
-                new THREE.Vector3(-2.2, y, -2),
-                new THREE.Vector3(-1.8, y, -2)
+                new THREE.Vector3(-0.2, y, -0),
+                new THREE.Vector3(0.2, y, 0)
             ];
             const tickGeometry = new THREE.BufferGeometry().setFromPoints(tickPoints);
             const tickLine = new THREE.Line(tickGeometry, axisMaterial);
             scene.add(tickLine);
             // Label
-            const tickLabel = createTextLabel(Math.round(y).toString(), new THREE.Vector3(-2.7, y, -2), 0x000000, 18);
+            const tickLabel = createTextLabel(Math.round(y).toString(), new THREE.Vector3(-0.4, y, 0), 0x000000, 18);
             scene.add(tickLabel);
         }
     }
@@ -300,6 +296,12 @@
     // Unified state for filters
     let visibleCategories = null; // null means all enabled initially
     let visibleSentiments = ['NEGATIVE', 'NEUTRAL', 'POSITIVE'];
+    const weekGap = 0.5;
+    const weekSpacing = 2.5;
+    const sentimentSpacing = 0.3;
+    const categoryGap = 0.1;
+    const barWidth = 0.15;
+    const cellWidth = 3.5;
 
     // Update bar visibility based on both filters
     function updateBarVisibilityUnified() {
@@ -312,53 +314,74 @@
             disabledSentiments.add(item.dataset.sentiment);
         });
         const sentiments = ['NEGATIVE', 'NEUTRAL', 'POSITIVE'];
-        // Group bars by (week, sentiment)
-        const barsByWeekSentiment = {};
+        
+        // Group bars by week
+        const barsByWeek = {};
         scene.children.forEach(child => {
             if (child instanceof THREE.Mesh && child.userData && child.userData.category && child.userData.sentimentIndex !== undefined && child.userData.weekIndex !== undefined) {
-                const key = `${child.userData.weekIndex}_${child.userData.sentimentIndex}`;
-                if (!barsByWeekSentiment[key]) barsByWeekSentiment[key] = [];
-                barsByWeekSentiment[key].push(child);
+                const weekIndex = child.userData.weekIndex;
+                if (!barsByWeek[weekIndex]) {
+                    barsByWeek[weekIndex] = {
+                        bySentiment: {},
+                        byCategory: {}
+                    };
+                }
+                const sentimentIndex = child.userData.sentimentIndex;
+                const category = child.userData.category;
+                
+                if (!barsByWeek[weekIndex].bySentiment[sentimentIndex]) {
+                    barsByWeek[weekIndex].bySentiment[sentimentIndex] = [];
+                }
+                if (!barsByWeek[weekIndex].byCategory[category]) {
+                    barsByWeek[weekIndex].byCategory[category] = [];
+                }
+                
+                barsByWeek[weekIndex].bySentiment[sentimentIndex].push(child);
+                barsByWeek[weekIndex].byCategory[category].push(child);
             }
         });
-        // For each group, update visibility and reposition
-        const cellWidth = 2.0;
-        const weekSpacing = 2.5;
-        const sentimentSpacing = 0.3;
-        const microGap = 0.05;
-        Object.values(barsByWeekSentiment).forEach(bars => {
-            if (bars.length === 0) return;
-            const weekIndex = bars[0].userData.weekIndex;
-            const sentimentIndex = bars[0].userData.sentimentIndex;
-            // Only visible bars
-            let visibleBars = bars.filter(bar => {
-                const sentiment = sentiments[bar.userData.sentimentIndex];
-                const category = bar.userData.category;
-                return !disabledCategories.has(category) && !disabledSentiments.has(sentiment);
+        let globalX = 0;
+        // For each week, calculate positions
+        Object.entries(barsByWeek).forEach(([weekIndex, weekData]) => {
+
+            // First, determine which categories are visible in any sentiment
+            const visibleCategoriesInWeek = new Set();
+            Object.entries(weekData.bySentiment).forEach(([sentimentIndex, bars]) => {
+                bars.forEach(bar => {
+                    const sentiment = sentiments[bar.userData.sentimentIndex];
+                    const category = bar.userData.category;
+                    if (!disabledCategories.has(category) && !disabledSentiments.has(sentiment)) {
+                        visibleCategoriesInWeek.add(category);
+                    }
+                });
             });
-            // Sort by cluster index for consistent order
-            visibleBars.sort((a, b) => a.userData.clusterIndex - b.userData.clusterIndex);
-            // Calculate total width
-            let totalWidth = 0;
-            visibleBars.forEach(bar => {
-                totalWidth += bar.geometry.parameters.width;
+
+            // Create a map of category to its position
+            const categoryPositions = {};
+            const realWidth = visibleCategoriesInWeek.size * barWidth + (visibleCategoriesInWeek.size - 1) * categoryGap;
+            const cellMargin = (cellWidth - realWidth) / 2;
+            let localX = cellMargin;
+            Array.from(visibleCategoriesInWeek).sort().forEach(category => {
+                categoryPositions[category] = localX;
+                localX += barWidth + categoryGap;
             });
-            totalWidth += (visibleBars.length - 1) * microGap;
-            let currentX = -totalWidth / 2;
-            visibleBars.forEach(bar => {
-                bar.visible = true;
-                bar.position.x = weekIndex * weekSpacing - cellWidth / 2 + currentX + bar.geometry.parameters.width / 2;
-                bar.position.z = sentimentIndex * sentimentSpacing;
-                currentX += bar.geometry.parameters.width + microGap;
+
+            // Update positions for all bars in this week
+            Object.entries(weekData.bySentiment).forEach(([sentimentIndex, bars]) => {
+                bars.forEach(bar => {
+                    const sentiment = sentiments[bar.userData.sentimentIndex];
+                    const category = bar.userData.category;
+                    
+                    if (!disabledCategories.has(category) && !disabledSentiments.has(sentiment)) {
+                        bar.visible = true;
+                        bar.position.x = globalX + categoryPositions[category];
+                        bar.position.z = sentimentIndex * sentimentSpacing;
+                    } else {
+                        bar.visible = false;
+                    }
+                });
             });
-            // Hide disabled bars
-            bars.forEach(bar => {
-                const sentiment = sentiments[bar.userData.sentimentIndex];
-                const category = bar.userData.category;
-                if (disabledCategories.has(category) || disabledSentiments.has(sentiment)) {
-                    bar.visible = false;
-                }
-            });
+            globalX += localX + barWidth + weekGap + cellMargin;
         });
     }
 
@@ -464,7 +487,7 @@
                 news.translations.forEach(translation => {
                     if (translation.clusters && translation.clusters.length > 0) {
                         translation.clusters.forEach(cluster => {
-                            const clusterName = cluster.name;
+                            const clusterName = cluster.name.trim();
                             
                             if (!weeklyData[week]) {
                                 weeklyData[week] = {
@@ -516,13 +539,8 @@
             // After bars are created, call both legends and updateBarVisibilityUnified
             createLegend(clustersArray);
             createSentimentLegend(['NEGATIVE', 'NEUTRAL', 'POSITIVE']);
-            updateBarVisibilityUnified();
             
             // Bar layout parameters
-            const cellWidth = 2.0;
-            const weekSpacing = 2.5;
-            const sentimentSpacing = 0.3;
-            const barWidth = cellWidth / clustersArray.length * 0.8;
             const clusterSpacing = cellWidth / clustersArray.length;
             let maxHeight = 0;
 
@@ -569,6 +587,8 @@
               });
             });
 
+            updateBarVisibilityUnified();
+
             // Create axis labels (sentiment labels closer)
             createAxisLabels(weeks, clustersArray, ['Negative', 'Neutral', 'Positive'], sentimentSpacing);
 
@@ -611,7 +631,7 @@
         tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNum);
         const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
         const weekNo = Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
-        return weekNo;
+        return weekNo.toString().padStart(2, '0');
     }
 
     // Set up date controls

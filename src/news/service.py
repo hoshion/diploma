@@ -5,7 +5,7 @@ from typing import Optional
 from src.llms.ollama import OllamaModel
 from src.news.models import News, NewsTranslation, NewsSentiment, NewsCluster
 from src.parsers.hromadske import HromadskeParser
-from src.news.serializers import NewsDetailSerializer
+from src.news.serializers import NewsListSerializer
 from src.translators.translator import GoogleTranslator
 
 
@@ -29,7 +29,7 @@ class NewsService:
         objects = News.objects.filter(query)
 
         # Серіалізування новин для відповіді
-        return NewsDetailSerializer(objects, many=True)
+        return NewsListSerializer(objects, many=True)
 
     # Метод для виклику класу відповідного парсеру з передачею необхідних параметрів
     def parse(self, params: dict[str, str]):

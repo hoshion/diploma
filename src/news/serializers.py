@@ -25,27 +25,41 @@ class TranslatorSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class NewsTranslationSerializer(serializers.ModelSerializer):
-    translator = TranslatorSerializer(read_only=True)
-    
     class Meta:
         model = NewsTranslation
-        fields = ['id', 'content', 'translator', 'created_at']
+        fields = ['id', 'created_at']
 
 class NewsSentimentSerializer(serializers.ModelSerializer):
-    model = LargeLanguageModelSerializer(read_only=True)
-    prompt = PromptSerializer(read_only=True)
-    
     class Meta:
         model = NewsSentiment
-        fields = ['value', 'explanation', 'model', 'prompt', 'created_at']
+        fields = ['value', 'created_at']
 
 class NewsClusterSerializer(serializers.ModelSerializer):
-    model = LargeLanguageModelSerializer(read_only=True)
-    prompt = PromptSerializer(read_only=True)
-    
     class Meta:
         model = NewsCluster
-        fields = ['name', 'model', 'prompt', 'created_at']
+        fields = ['name', 'created_at']
+
+class NewsListSerializer(serializers.ModelSerializer):
+    category = NewsCategorySerializer(read_only=True)
+    translations = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = News
+        fields = ['id', 'title', 'published_at', 'category', 'translations']
+    
+    def get_translations(self, obj):
+        translations = obj.newstranslation_set.all()
+        result = []
+        for translation in translations:
+            translation_data = NewsTranslationSerializer(translation).data
+            translation_data['sentiments'] = NewsSentimentSerializer(
+                translation.newssentiment_set.all(), many=True
+            ).data
+            translation_data['clusters'] = NewsClusterSerializer(
+                translation.newscluster_set.all(), many=True
+            ).data
+            result.append(translation_data)
+        return result
 
 class NewsSerializer(serializers.ModelSerializer):
     category = NewsCategorySerializer(read_only=True)
