@@ -9650,3 +9650,178 @@ INFO 2025-06-15 23:26:48,393 ollama Determined sentiment: NEGATIVE
 INFO 2025-06-15 23:26:48,424 ollama Saved sentiment analysis for translation ID: 3432
 INFO 2025-06-15 23:26:48,454 ollama Processing news translation ID: 3433
 INFO 2025-06-15 23:26:48,455 ollama News content: BBC: The Syrian eczeper stated that the journalist disappeared in 2012 from the United States was executed by order of the already fallen Assad. A military man, who was accused of delaying the missing...
+INFO 2025-06-15 23:55:38,738 ollama Initialized OllamaModel with model: llama3.1:8b
+INFO 2025-06-15 23:55:38,738 ollama Starting sentiment analysis for Hromadske with Google translator
+INFO 2025-06-15 23:55:38,738 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:55:38,738 ollama Using prompt: Hi! I need you to analyze sentimentally Ukrainian news. There are three types: POSITIVE, NEGATIVE or NEUTRAL. You need to evaluate the impact of described situation for Ukraine (is it good for Ukrainian or not) and mark as one of three types. As answer you need to write POSITIVE, NEGATIVE or NEUTRAL and short explanation of your decision.
+
+    The news is:
+    
+INFO 2025-06-15 23:55:38,809 ollama Starting clustering for Hromadske with Google translator
+INFO 2025-06-15 23:55:38,809 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:55:38,809 ollama Using prompt: Hi! I need you to classify Ukrainian news by news category. There are 17 categories: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather, Other. You need to evaluate the closest category from proposed to this news. As answer you need to write only the name of cateogory and NOTHING ELSE.
+
+The news is:
+
+INFO 2025-06-15 23:56:41,881 ollama Initialized OllamaModel with model: llama3.1:8b
+INFO 2025-06-15 23:56:41,881 ollama Starting sentiment analysis for Hromadske with Google translator
+INFO 2025-06-15 23:56:41,882 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:56:41,882 ollama Using prompt: Hi! I need you to analyze sentimentally Ukrainian news. There are three types: POSITIVE, NEGATIVE or NEUTRAL. You need to evaluate the impact of described situation for Ukraine (is it good for Ukrainian or not) and mark as one of three types. As answer you need to write POSITIVE, NEGATIVE or NEUTRAL and short explanation of your decision.
+
+    The news is:
+    
+INFO 2025-06-15 23:56:41,953 ollama Starting clustering for Hromadske with Google translator
+INFO 2025-06-15 23:56:41,953 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:56:41,953 ollama Using prompt: Hi! I need you to classify Ukrainian news by news category. There are 17 categories: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather, Other. You need to evaluate the closest category from proposed to this news. As answer you need to write only the name of cateogory and NOTHING ELSE.
+
+The news is:
+
+INFO 2025-06-15 23:57:38,770 ollama Initialized OllamaModel with model: llama3.1:8b
+INFO 2025-06-15 23:57:38,770 ollama Starting sentiment analysis for Hromadske with Google translator
+INFO 2025-06-15 23:57:38,770 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:57:38,770 ollama Using prompt: Hi! I need you to analyze sentimentally Ukrainian news. There are three types: POSITIVE, NEGATIVE or NEUTRAL. You need to evaluate the impact of described situation for Ukraine (is it good for Ukrainian or not) and mark as one of three types. As answer you need to write POSITIVE, NEGATIVE or NEUTRAL and short explanation of your decision.
+
+    The news is:
+    
+INFO 2025-06-15 23:57:38,855 ollama Starting clustering for Hromadske with Google translator
+INFO 2025-06-15 23:57:38,855 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:57:38,856 ollama Using prompt: Hi! I need you to classify Ukrainian news by news category. There are 17 categories: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather, Other. You need to evaluate the closest category from proposed to this news. As answer you need to write only the name of cateogory and NOTHING ELSE.
+
+The news is:
+
+INFO 2025-06-15 23:58:38,475 ollama Initialized OllamaModel with model: llama3.1:8b
+INFO 2025-06-15 23:58:38,475 ollama Starting sentiment analysis for Hromadske with Google translator
+INFO 2025-06-15 23:58:38,475 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:58:38,476 ollama Using prompt: Hi! I need you to analyze sentimentally Ukrainian news. There are three types: POSITIVE, NEGATIVE or NEUTRAL. You need to evaluate the impact of described situation for Ukraine (is it good for Ukrainian or not) and mark as one of three types. As answer you need to write POSITIVE, NEGATIVE or NEUTRAL and short explanation of your decision.
+
+    The news is:
+    
+INFO 2025-06-15 23:58:38,547 ollama Starting clustering for Hromadske with Google translator
+INFO 2025-06-15 23:58:38,551 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-15 23:58:38,552 ollama Using prompt: Hi! I need you to classify Ukrainian news by news category. There are 17 categories: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather, Other. You need to evaluate the closest category from proposed to this news. As answer you need to write only the name of cateogory and NOTHING ELSE.
+
+The news is:
+
+INFO 2025-06-16 00:02:17,491 ollama Initialized OllamaModel with model: llama3.1:8b
+INFO 2025-06-16 00:02:17,491 ollama Starting sentiment analysis for Hromadske with Google translator
+INFO 2025-06-16 00:02:17,491 ollama Date range: 2025-06-01 00:00:00 to 2025-07-01 00:00:00
+INFO 2025-06-16 00:02:17,491 ollama Using prompt: Hi! I need you to analyze sentimentally Ukrainian news. There are three types: POSITIVE, NEGATIVE or NEUTRAL. You need to evaluate the impact of described situation for Ukraine (is it good for Ukrainian or not) and mark as one of three types. As answer you need to write POSITIVE, NEGATIVE or NEUTRAL and short explanation of your decision.
+
+The news is:
+INFO 2025-06-16 00:02:24,110 ollama Processing news translation ID: 3424
+INFO 2025-06-16 00:02:24,110 ollama News content: The deadly road accident with Ukrainians in France: the driver was charged. In France, one of the two drivers of the bus, which spilled over on June 13, suffered an inadvertent murder. 4 people were k...
+INFO 2025-06-16 00:02:58,730 ollama Model response: NEGATIVE
+The reason for the decision is that 4 people died in an accident involving Ukrainians, which negatively affects Ukraine as it involves loss of life.
+INFO 2025-06-16 00:02:58,730 ollama Determined sentiment: NEGATIVE
+INFO 2025-06-16 00:02:58,766 ollama Saved sentiment analysis for translation ID: 3424
+INFO 2025-06-16 00:02:58,879 ollama Processing news translation ID: 3412
+INFO 2025-06-16 00:02:58,880 ollama News content: In India, after aircraft, which died more than 240 people, will check all their boarding 787. India's government decided to check for serviceability all available Boeing 787 aircraft after one of thes...
+INFO 2025-06-16 00:03:12,082 ollama Model response: The impact of this situation on Ukraine is NEUTRAL.
+
+Explanation: The news article describes a tragic plane crash and investigation into the safety of Boeing 787 aircraft in India. However, there is no mention or connection to Ukraine, its economy, politics, or any other relevant aspects. Therefore, the sentimentality of the article regarding Ukraine can be classified as neutral.
+INFO 2025-06-16 00:03:12,082 ollama Determined sentiment: NEUTRAL
+INFO 2025-06-16 00:03:12,119 ollama Saved sentiment analysis for translation ID: 3412
+INFO 2025-06-16 00:03:12,157 ollama Processing news translation ID: 3413
+INFO 2025-06-16 00:03:12,157 ollama News content: The new exchange of prisoners, the return of the fallen soldiers and Trump's conversation with Putin: the main thing for June 14. Ukraine and Russia have carried out a new exchange of prisoners of war...
+INFO 2025-06-16 00:04:35,629 ollama Model response: Here are my analyses of the news:
+
+1. **The new exchange of prisoners, the return of the fallen soldiers and Trump's conversation with Putin: the main thing for June 14**:
+	* Sentiment: POSITIVE
+	* Explanation: The fact that Ukraine and Russia have exchanged prisoners and returned the bodies of 1200 fallen defenders is a positive development for Ukraine. It brings closure to families who lost loved ones in the conflict.
+2. **The fourth exchange of prisoners of war took place between Ukraine and Russia, President Volodymyr Zelenskyy said**:
+	* Sentiment: POSITIVE
+	* Explanation: Similar reasoning as above. The exchange of prisoners is a positive development that highlights the efforts made by Ukraine to negotiate with Russia.
+3. **Ukraine held another repatriation event as a result of negotiations with Russia in Istanbul, returning to the homeland of 1,200 citizens**:
+	* Sentiment: POSITIVE
+	* Explanation: This news further emphasizes the positive aspect of the prisoner exchange and the efforts made by Ukraine to negotiate with Russia.
+4. **US President Donald Trump and the head of the Russian Federation have held a telephone conversation**:
+	* Sentiment: NEUTRAL
+	* Explanation: While this news is neutral on its own, it could potentially be used as leverage for future negotiations between Ukraine and Russia, but without any specific outcomes or agreements mentioned, I consider it neutral.
+5. **57 Ombre suggests that a man complained about them because he does not want to serve**:
+	* Sentiment: NEUTRAL
+	* Explanation: This news is more of a domestic issue related to the military and does not have a significant impact on Ukraine's overall situation regarding Russia or international relations.
+6. **More than 800 people were registered for the action - about half a thousand people were registered last year**:
+	* Sentiment: POSITIVE
+	* Explanation: This news highlights the growing interest in human rights actions, which is a positive development for Ukraine's civil society and democratic values.
+7. **At the same time, a human rights action was held in the center of Lviv to support LGBTKI**:
+	* Sentiment: POSITIVE
+	* Explanation: Similar reasoning as above. The fact that there are human rights actions being organized in Ukraine is a positive development for the country's democratic values and civil society.
+INFO 2025-06-16 00:04:35,629 ollama Determined sentiment: POSITIVE
+INFO 2025-06-16 00:04:35,669 ollama Saved sentiment analysis for translation ID: 3413
+INFO 2025-06-16 00:04:35,706 ollama Processing news translation ID: 3414
+INFO 2025-06-16 00:04:35,706 ollama News content: Trump about talking to Putin: Called to congratulate me very well. US President Donald Trump shared the details of a telephone conversation with the head of the Russian Federation Vladimir Putin. He w...
+INFO 2025-06-16 00:04:48,243 ollama Model response: NEUTRAL
+
+This news is neutral because it describes a phone call between Trump and Putin without any emotional language or specific implications for Ukraine's situation. While Trump mentions Ukraine, his comment about ending the conflict there might be seen as positive by some, but overall, the news doesn't have a strong impact on Ukraine's sentiment one way or the other.
+INFO 2025-06-16 00:04:48,244 ollama Determined sentiment: NEUTRAL
+INFO 2025-06-16 00:04:48,278 ollama Saved sentiment analysis for translation ID: 3414
+INFO 2025-06-16 00:04:48,313 ollama Processing news translation ID: 3415
+INFO 2025-06-16 00:04:48,313 ollama News content: "No kings." In the US, people protest against Trump on his birthday. On the birthday of US President Donald Trump, thousands of citizens were protesting against him with the slogan "Without Kings". It...
+INFO 2025-06-16 00:05:06,939 ollama Model response: The news is about protests against Donald Trump in the US on his birthday, but I assume it's not directly related to Ukraine.
+
+However, considering that this event might have an indirect impact on Ukraine (as a global demonstration of resistance to authoritarian leaders), I would evaluate it as:
+
+NEUTRAL
+Explanation: The protest is taking place in another country and is focused on the internal politics of the US. While it shows that Trump's actions are not well-received globally, it doesn't have a direct impact on Ukraine's situation.
+INFO 2025-06-16 00:05:06,939 ollama Determined sentiment: NEUTRAL
+INFO 2025-06-16 00:05:06,978 ollama Saved sentiment analysis for translation ID: 3415
+INFO 2025-06-16 00:05:07,008 ollama Processing news translation ID: 3416
+INFO 2025-06-16 00:05:07,008 ollama News content: The linguistic Ombudsman appealed to the police through the concert of Verki Serdyuchka with Russian -speaking songs. Taras Kremin's Commissioner for Protection of the Ukrainian Language, appealed to ...
+INFO 2025-06-16 00:05:22,698 ollama Model response: NEUTRAL
+
+The news is about an incident where a performer used Russian-speaking songs during their concert, which violated Ukrainian language laws. The linguistic ombudsman filed a complaint with the police, but the police responded by stating they are investigating the circumstances of the event. This situation does not have a significant impact on Ukraine as a whole and can be seen as a routine enforcement of laws rather than a major development or issue for the country.
+INFO 2025-06-16 00:05:22,698 ollama Determined sentiment: NEUTRAL
+INFO 2025-06-16 00:05:22,727 ollama Saved sentiment analysis for translation ID: 3416
+INFO 2025-06-16 00:05:22,767 ollama Processing news translation ID: 3417
+INFO 2025-06-16 00:05:22,767 ollama News content: We plan that the exchanges will continue next week - Zelensky. President of Ukraine Volodymyr Zelensky stated that next week new exchanges can take place. He said in his evening video. "We are working...
+INFO 2025-06-16 00:05:43,559 ollama Model response: Based on the news, I would classify it as POSITIVE.
+
+The reason is that the exchange of prisoners of war between Ukraine and Russia has resulted in the return of Ukrainian officers and soldiers to their country, which is a positive development for Ukraine. The fact that Zelensky mentions that all seriously wounded and severely ill prisoners of war, as well as all military ages from 18 to 25 years, have been exchanged suggests that this agreement benefits Ukraine's interests. Overall, the news indicates progress in releasing Ukrainian captives and providing them with necessary help, which is a positive outcome for Ukraine.
+INFO 2025-06-16 00:05:43,559 ollama Determined sentiment: POSITIVE
+INFO 2025-06-16 00:05:43,597 ollama Saved sentiment analysis for translation ID: 3417
+INFO 2025-06-16 00:05:43,630 ollama Processing news translation ID: 3418
+INFO 2025-06-16 00:05:43,630 ollama News content: The Minnesota killed a deputy from the Democratic Party. Trump responded. The Minnesota killed a state representative from the Democratic Party of Melissa Gortman and her husband. Two more officials w...
+INFO 2025-06-16 00:06:01,951 ollama Model response: The sentiment analysis for this news article from a Ukrainian perspective would be:
+
+POSITIVE
+
+Explanation: The news mentions that Trump expressed support for Ukraine's allies (state legislators) and emphasized that those responsible for the attack will face "all the severity of the law". This implies that Ukraine may feel more secure knowing that their allies are being protected, which is a positive development. Additionally, the fact that the US is taking action to investigate the situation may be seen as a positive sign for international cooperation and support in combating violence.
+INFO 2025-06-16 00:06:01,951 ollama Determined sentiment: POSITIVE
+INFO 2025-06-16 00:06:01,985 ollama Saved sentiment analysis for translation ID: 3418
+INFO 2025-06-16 00:06:02,015 ollama Processing news translation ID: 3419
+INFO 2025-06-16 00:06:02,015 ollama News content: The Odessa TCC reacted to the mobilization of the priest of the UOC -MP. He is said to be offered a chaplain. The incident was commented in the Odessa Criminal Code and JV with the mobilization of the...
+INFO 2025-06-16 00:06:20,158 ollama Model response: NEGATIVE
+
+The news describes a situation where a priest of the UOC-MP was mobilized and detained by the authorities for not being registered for military service. The Tax Code (TCC) has criticized the church's representatives for failing to provide correct documents, implying that they are responsible for the priest's detention. This implies a tense relationship between the Ukrainian government and the Moscow-loyal Ukrainian Orthodox Church, which is likely seen as a negative development by many Ukrainians who support the country's independence from Russia.
+INFO 2025-06-16 00:06:20,159 ollama Determined sentiment: NEGATIVE
+INFO 2025-06-16 00:06:20,191 ollama Saved sentiment analysis for translation ID: 3419
+INFO 2025-06-16 00:06:20,221 ollama Processing news translation ID: 3420
+INFO 2025-06-16 00:06:20,231 ollama News content: The United States has moved some of their means of counteracting UAV from Ukraine to the Middle East - the Pentagon leader. US Secretary of Defense Pete Hegset said the United States has moved some of...
+INFO 2025-06-16 00:06:36,322 ollama Model response: NEGATIVE
+
+The reason is that the United States has moved some of their means of counteracting UAV from Ukraine, which can be seen as a reduction or withdrawal of military support from Ukraine at a critical time. Although US Secretary of Defense Pete Hegset emphasized the importance of protecting its military in the world and mentioned potential future military support for Ukraine, the initial move of resources away from Ukraine is perceived negatively for the country's interests.
+INFO 2025-06-16 00:06:36,322 ollama Determined sentiment: NEGATIVE
+INFO 2025-06-16 00:06:36,354 ollama Saved sentiment analysis for translation ID: 3420
+INFO 2025-06-16 00:06:36,394 ollama Processing news translation ID: 3421
+INFO 2025-06-16 00:06:36,394 ollama News content: Trump and Putin were spoken by phone: mentioned about Israel, Iran, and negotiations on war in Ukraine (supplemented). US President Donald Trump and Russian leader Vladimir Putin had a telephone conve...
+INFO 2025-06-16 00:07:01,985 ollama Model response: After analyzing the news, I would classify it as NEUTRAL.
+
+Explanation: The conversation between Trump and Putin appears to be a diplomatic effort to address global conflicts, including the one in Ukraine. However, there is no concrete indication that the conversation will lead to a resolution or improvement of the situation for Ukraine. In fact, Putin's comments on Israel's actions and his readiness to mediate may be seen as critical of Ukraine's interests. The statement from Trump about striving for the speedy end of the war in Ukraine sounds positive, but it is more of an expression of intention rather than a concrete action or result. Overall, the news does not convey any significant progress or change in the situation, hence the neutral classification.
+INFO 2025-06-16 00:07:01,985 ollama Determined sentiment: NEUTRAL
+INFO 2025-06-16 00:07:02,017 ollama Saved sentiment analysis for translation ID: 3421
+INFO 2025-06-16 00:07:02,057 ollama Processing news translation ID: 3422
+INFO 2025-06-16 00:07:02,057 ollama News content: In Berlin, unknown with a knife attacked the Ukrainian, hearing that he speaks Ukrainian. In the capital of Germany attacked a citizen of Ukraine. It was probably the reason for this was that he spoke...
+INFO 2025-06-16 00:07:13,980 ollama Model response: NEUTRAL
+
+The news describes a violent attack on a Ukrainian citizen in Germany, which is unfortunate for Ukraine. However, there are no implications or consequences mentioned that directly affect the country as a whole. The article seems to be reporting on an isolated incident rather than a broader trend or policy development.
+INFO 2025-06-16 00:07:13,980 ollama Determined sentiment: NEUTRAL
+INFO 2025-06-16 00:07:14,013 ollama Saved sentiment analysis for translation ID: 3422
+INFO 2025-06-16 00:07:14,053 ollama Processing news translation ID: 3423
+INFO 2025-06-16 00:07:14,053 ollama News content: In Israel, the Iranian blow was injured by Croatia Consul with his wife. During the Iranian blow on Tel Aviv, a building in which the Croatia Consul lives in Israel with his wife lived. They suffered ...
+INFO 2025-06-16 00:07:30,092 ollama Model response: After analyzing the news, I would categorize it as NEUTRAL.
+
+Explanation: The news reports on an international conflict between Israel and Iran, which resulted in minor injuries to a Croatian Consul and his wife. While this incident has some implications for Ukraine's diplomatic relationships with Croatia and potentially other European countries, its impact is relatively indirect and neutral. Neither side directly benefits or loses from this specific event, as it is part of a larger conflict outside of Ukraine's borders.
+INFO 2025-06-16 00:07:30,092 ollama Determined sentiment: NEUTRAL
+INFO 2025-06-16 00:07:30,125 ollama Saved sentiment analysis for translation ID: 3423
+INFO 2025-06-16 00:07:30,156 ollama Processing news translation ID: 3425
+INFO 2025-06-16 00:07:30,165 ollama News content: 1200 bodies of the dead were returned to Ukraine, and GUR was a sabotage in Kaliningrad: the main thing for June 15. Ukraine returned another 1,200 bodies of dead citizens. The Drones of the Armed For...

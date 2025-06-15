@@ -10,3 +10,5 @@
 **/coverage/**
 celerybeat**
 /.idea/
+/venv/
+/saved_prompts.txt
