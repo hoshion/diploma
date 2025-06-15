@@ -273,10 +273,10 @@ async function startTranslation() {
 async function startSentimentAnalysis() {
     try {
         const params = {
-            start_year: document.getElementById('analyze_start_year').value,
-            end_year: document.getElementById('analyze_end_year').value,
-            start_month: document.getElementById('analyze_start_month').value,
-            end_month: document.getElementById('analyze_end_month').value,
+            start_year: +document.getElementById('analyze_start_year').value,
+            end_year: +document.getElementById('analyze_end_year').value,
+            start_month: +document.getElementById('analyze_start_month').value,
+            end_month: +document.getElementById('analyze_end_month').value,
             translator_type: document.getElementById('analyze_translator_type').value,
             parser_type: document.getElementById('analyze_parser_type').value,
             model_type: document.getElementById('model_type').value,

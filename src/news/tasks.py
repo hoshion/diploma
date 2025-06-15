@@ -10,7 +10,10 @@ from src.news.serializers import NewsDetailSerializer
 def hromadske_news_pipeline():
     print("[Scheduler] Starting Hromadske news pipeline for today.")
     try:
-        last_news_date = NewsDetailSerializer(News.objects.order_by('-published_at').first()).data.published_at
+        # Get the last news date directly from the model instance
+        last_news = News.objects.order_by('-published_at').first()
+        last_news_date = last_news.published_at if last_news else None
+        
         today = datetime.now().date()
         start_year = today.year
         end_year = today.year

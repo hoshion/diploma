@@ -34,6 +34,7 @@ class GoogleTranslator:
 
         for news in news_items:
             en_text = DeepGoogleTranslator(source='auto', target='en').translate(news.content[0:3000])
+            print(news.published_at)
             newsDb = NewsTranslation.objects.filter(news=news, translator=self.translator)
             if len(newsDb) == 0:
                 translation = NewsTranslation(content=en_text, news=news, translator=self.translator)

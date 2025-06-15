@@ -7,6 +7,12 @@ from src.news.models import LargeLanguageModel, NewsTranslation, NewsSentiment, 
 # Configure logging
 logger = logging.getLogger('src.llms.ollama')
 
+VALID_CATEGORIES = [
+    "Education", "Science", "Lifestyle", "War", "Politics", "Weather",
+    "World", "Showbiz", "Health", "Useful", "Sport", "Economics",
+    "Social", "Culture", "Other", "Religion"
+]
+
 class OllamaModel:
     def __init__(self, model_name):
         obj, created = LargeLanguageModel.objects.get_or_create(name=model_name)
@@ -15,6 +21,19 @@ class OllamaModel:
         self.model = obj
         self.model_name = model_name
         logger.info(f"Initialized OllamaModel with model: {model_name}")
+
+    def _process_category(self, text):
+        # Trim whitespace and convert to title case
+        text = text.strip().title()
+        
+        # If text contains spaces, take only the first word
+        if ' ' in text:
+            text = text.split()[0]
+            
+        # Check if the category is valid
+        if text in VALID_CATEGORIES:
+            return text
+        return "Other"
 
     def get_sentiment(self, parser_type, translator_type, start_year, end_year, start_month, end_month, prompt, last_news_date=None):
         start_date = datetime(start_year, start_month, 1)
@@ -124,15 +143,18 @@ class OllamaModel:
                 messages = [
                     {"role": "user", "content": promptDb.content + translation.content},
                 ]
-                name = ollama.chat(model=self.model_name, messages=messages)["message"]["content"]
+                raw_category = ollama.chat(model=self.model_name, messages=messages)["message"]["content"]
                 
-                logger.info(f"Model response: {name}")
-                logger.info(f"Determined cluster name: {name}")
+                # Process the category according to the rules
+                category = self._process_category(raw_category)
+                
+                logger.info(f"Raw model response: {raw_category}")
+                logger.info(f"Processed category: {category}")
                 
                 cluster = NewsCluster(
                     translation=translation,
                     model=self.model,
-                    name=name,
+                    name=category,
                     prompt=promptDb,
                 )
                 cluster.save()

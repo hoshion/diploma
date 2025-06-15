@@ -51,7 +51,6 @@ class ParsersService:
                 week_num = period.isocalendar()[1]
                 fortnight_num = (week_num - 1) // 2 + 1
                 fortnight_start = period - timedelta(days=period.weekday())
-                fortnight_end = fortnight_start + timedelta(days=13)
                 
                 if current_fortnight != fortnight_num:
                     if current_stats:
