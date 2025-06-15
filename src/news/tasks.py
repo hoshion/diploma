@@ -25,9 +25,15 @@ def hromadske_news_pipeline():
         model_type = 'llama3.1:8b'
         prompt = """Hi! I need you to analyze sentimentally Ukrainian news. There are three types: POSITIVE, NEGATIVE or NEUTRAL. You need to evaluate the impact of described situation for Ukraine (is it good for Ukrainian or not) and mark as one of three types. As answer you need to write POSITIVE, NEGATIVE or NEUTRAL and short explanation of your decision.
 
-    The news is:
+The news is:
     """
-        promptCluster = """Hi! I need you to classify Ukrainian news by news category. There are 17 categories: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather, Other. You need to evaluate the closest category from proposed to this news. As answer you need to write only the name of cateogory and NOTHING ELSE.\n\nThe news is:\n"""
+        promptCluster = """IMPORTANT: if message has part "the main thing for", write "Other" and stop analyzing;
+
+If message does not have part "the main thing for", write the closest one category to this message: Economics, Politics, Social, War, World, Religion, Education, Science, Sport, Culture, Useful, Showbiz, Lifestyle, Health, Weather and Other.
+
+Your answer must be one word.
+
+The message is:"""
 
         # 1. Parse only today's news
         print("[Scheduler] Parsing news...")
